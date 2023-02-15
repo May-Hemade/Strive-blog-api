@@ -8,7 +8,9 @@ import {
   genericErrorHandler,
   notFoundHandler,
   unauthorizedHandler,
-} from "./api/errorHandlers.js"
+} from "./utils/errorHandlers.js"
+import path, { dirname } from "path"
+import { fileURLToPath } from "url"
 
 const server = express() // helps me to create endpoints and api
 
@@ -20,6 +22,11 @@ const loggerMiddleWare = (req, res, next) => {
   next()
 }
 
+const __filename = fileURLToPath(import.meta.url)
+
+const __dirname = dirname(__filename)
+
+const publicDirectory = path.join(__dirname, "../public")
 server.use(cors())
 
 server.use(loggerMiddleWare)
@@ -27,6 +34,7 @@ server.use(loggerMiddleWare)
 server.use(express.json()) // If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED
 
 // ****************** ENDPOINTS *********************
+server.use(express.static(publicDirectory))
 server.use("/authors", authorsRouter)
 server.use("/blogs", blogsRouter)
 

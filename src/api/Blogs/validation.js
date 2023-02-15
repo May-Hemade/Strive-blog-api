@@ -42,3 +42,26 @@ export const triggerBadRequest = (req, res, next) => {
     next()
   }
 }
+
+const searchSchema = {
+  title: {
+    in: ["query"],
+    isString: {
+      errorMessage:
+        "title must be in query and type must be  string to search!",
+    },
+  },
+}
+
+export const checkSearchSchema = checkSchema(searchSchema)
+
+export const checkValidationResult = (req, res, next) => {
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    const error = new Error("Blog post validation is failed")
+    error.status = 400
+    error.errors = errors.array()
+    next(error)
+  }
+  next()
+}
