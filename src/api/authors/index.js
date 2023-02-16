@@ -4,7 +4,8 @@ import { fileURLToPath } from "url" // CORE MODULE
 import { dirname, join } from "path" // CORE MODULE
 import uniqid from "uniqid" // 3RD PARTY MODULE (npm i uniqid)
 import multer from "multer"
-import { parseFile, uploadAuthorAvatar } from "../../utils/upload/index.js"
+import { v2 as cloudinary } from "cloudinary"
+import { CloudinaryStorage } from "multer-storage-cloudinary"
 
 // 1. We gonna start from the current's file path --> D:\Epicode\2022\BE-MASTER-03\U4\epicode-u4-d2-3\src\api\users\index.js
 console.log("CURRENTS FILE URL: ", import.meta.url)
@@ -108,20 +109,27 @@ authorsRouter.delete("/:id", (req, res) => {
 //   console.log(req.file)
 //   res.send("Image uploaded successfully!")
 // })
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary, // cloudinary is going to search in .env vars for smt called process.env.CLOUDINARY_URL
+    params: {
+      folder: "strive-blog-api/authors",
+    },
+  }),
+}).single("avatar")
 
-authorsRouter.put(
+authorsRouter.post(
   "/:id/avatar",
-  parseFile.single("avatar"),
-  uploadAuthorAvatar,
+  cloudinaryUploader,
   async (req, res, next) => {
     try {
       const fileAsBuffer = fs.readFileSync(authorsJSONPath)
 
       const fileAsString = fileAsBuffer.toString()
 
-      let fileAsJSONArray = JSON.parse(fileAsString)
+      let authors = JSON.parse(fileAsString)
 
-      const authorIndex = fileAsJSONArray.findIndex(
+      const authorIndex = authors.findIndex(
         (author) => author.id === req.params.id
       )
       if (!authorIndex == -1) {
@@ -129,15 +137,15 @@ authorsRouter.put(
           .status(404)
           .send({ message: `Author with ${req.params.id} is not found!` })
       }
-      const previousAuthorData = fileAsJSONArray[authorIndex]
+      const previousAuthorData = authors[authorIndex]
       const changedAuthor = {
         ...previousAuthorData,
-        avatar: req.file,
+        avatar: req.file.path,
         updatedAt: new Date(),
         id: req.params.id,
       }
-      fileAsJSONArray[authorIndex] = changedAuthor
-      fs.writeFileSync(authorsJSONPath, JSON.stringify(fileAsJSONArray))
+      authors[authorIndex] = changedAuthor
+      fs.writeFileSync(authorsJSONPath, JSON.stringify(authors))
       res.send(changedAuthor)
     } catch (error) {
       res.send(500).send({ message: error.message })

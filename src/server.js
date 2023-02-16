@@ -9,7 +9,7 @@ import {
   notFoundHandler,
   unauthorizedHandler,
 } from "./utils/errorHandlers.js"
-import path, { dirname } from "path"
+import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
 
 const server = express() // helps me to create endpoints and api
@@ -27,11 +27,33 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
 const publicDirectory = path.join(__dirname, "../public")
-server.use(cors())
 
 server.use(loggerMiddleWare)
 
-server.use(express.json()) // If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED
+server.use(express.json())
+const publicFolderPath = join(process.cwd(), "./public")
+
+const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL]
+
+const corsOpts = {
+  origin: (origin, corsNext) => {
+    console.log("CURRENT ORIGIN: ", origin)
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      // If current origin is in the whitelist you can move on
+      corsNext(null, true)
+    } else {
+      // If it is not --> error
+      corsNext(
+        createHttpError(400, `Origin ${origin} is not in the whitelist!`)
+      )
+    }
+  },
+}
+
+server.use(express.static(publicFolderPath))
+server.use(cors(corsOpts))
+
+// If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED
 
 // ****************** ENDPOINTS *********************
 server.use(express.static(publicDirectory))
@@ -47,6 +69,7 @@ server.use(genericErrorHandler) // 500
 server.listen(port, () => {
   console.table(listEndpoints(server))
   console.log("Server is running on port:", port)
+  console.log("hey", process.env.BE_HOST)
 })
 server.on("error", (error) =>
   console.log(`❌ Server is not running due to : ${error}`)

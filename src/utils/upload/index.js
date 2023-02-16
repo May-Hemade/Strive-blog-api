@@ -29,7 +29,7 @@ const upload = (dir, req, next) => {
     const fileName = `${req.params.id}${extension}`
     const pathToFile = path.join(dir, fileName)
     fs.writeFileSync(pathToFile, buffer)
-    const link = `http://localhost:3001/${fileName}`
+    const link = `${process.env.BE_HOST}${fileName}`
     req.file = link
     next()
   } catch (error) {
