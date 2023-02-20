@@ -130,9 +130,10 @@ authorsRouter.post(
       let authors = JSON.parse(fileAsString)
 
       const authorIndex = authors.findIndex(
-        (author) => author.id === req.params.id
+        (author) => author.ID === req.params.id
       )
-      if (!authorIndex == -1) {
+      if (authorIndex === -1) {
+        // if (!authorIndex == -1)??
         res
           .status(404)
           .send({ message: `Author with ${req.params.id} is not found!` })
@@ -142,7 +143,7 @@ authorsRouter.post(
         ...previousAuthorData,
         avatar: req.file.path,
         updatedAt: new Date(),
-        id: req.params.id,
+        // id: req.params.id, ??
       }
       authors[authorIndex] = changedAuthor
       fs.writeFileSync(authorsJSONPath, JSON.stringify(authors))
