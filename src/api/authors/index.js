@@ -130,9 +130,12 @@ authorsRouter.post(
       let authors = JSON.parse(fileAsString)
 
       const authorIndex = authors.findIndex(
-        (author) => author.id === req.params.id
+        (author) => author.ID === req.params.id
       )
-      if (!authorIndex == -1) {
+
+      console.log("authorIndex: ", authorIndex)
+
+      if (authorIndex === -1) {
         res
           .status(404)
           .send({ message: `Author with ${req.params.id} is not found!` })

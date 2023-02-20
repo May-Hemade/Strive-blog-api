@@ -22,8 +22,8 @@ const blogsJSONPath = join(
 
 blogsRouter.get("/", async (req, res, next) => {
   try {
-    const fileContentAsBuffer = fs.readFileSync(blogsJSONPath)
-    const blogsArray = JSON.parse(fileContentAsBuffer)
+    const fileContentAsBuffer = fs.readFileSync(blogsJSONPath) // to read the file
+    const blogsArray = JSON.parse(fileContentAsBuffer) // making it an array
     res.send(blogsArray)
   } catch (error) {
     res.send(500).send({ message: error.message })
@@ -37,9 +37,9 @@ blogsRouter.get(
   async (req, res, next) => {
     try {
       const { title } = req.query
-      const fileAsBuffer = fs.readFileSync(blogsFilePath)
-      const fileAsString = fileAsBuffer.toString()
-      const blogsArray = JSON.parse(fileAsString)
+      const fileAsBuffer = fs.readFileSync(blogsJSONPath)
+      // const fileAsString = fileAsBuffer.toString() ??
+      const blogsArray = JSON.parse(fileAsBuffer)
       const filtered = blogsArray.filter((blog) =>
         blog.title.toLowerCase().includes(title.toLowerCase())
       )
@@ -51,7 +51,7 @@ blogsRouter.get(
 )
 
 blogsRouter.post("/", checkBlogSchema, triggerBadRequest, (req, res) => {
-  const { category, title, cover, readTime, author, content } = req.body
+  const { category, title, cover, readTime, author, content } = req.body // to make sure not to send something extra
   const newBlog = {
     category,
     title,
@@ -70,13 +70,17 @@ blogsRouter.post("/", checkBlogSchema, triggerBadRequest, (req, res) => {
 })
 
 blogsRouter.put("/:id", (req, res) => {
-  const blogsArray = JSON.parse(fs.readFileSync(blogsJSONPath))
-  const index = blogsArray.findIndex((blog) => blog._id === req.params.id)
-  const oldBlog = blogsArray[index]
-  const updatedBlog = { ...oldBlog, ...req.body, updatedAt: new Date() }
-  blogsArray[index] = updatedBlog
-  fs.writeFileSync(blogsJSONPath, JSON.stringify(blogsArray))
-  res.send(updatedBlog)
+  try {
+    const blogsArray = JSON.parse(fs.readFileSync(blogsJSONPath))
+    const index = blogsArray.findIndex((blog) => blog._id === req.params.id)
+    const oldBlog = blogsArray[index]
+    const updatedBlog = { ...oldBlog, ...req.body, updatedAt: new Date() }
+    blogsArray[index] = updatedBlog
+    fs.writeFileSync(blogsJSONPath, JSON.stringify(blogsArray))
+    res.send(updatedBlog)
+  } catch (error) {
+    res.send(500)
+  }
 })
 
 blogsRouter.get("/:id", (req, res) => {
@@ -109,11 +113,11 @@ blogsRouter.post(
   uploadBlogCover,
   async (req, res, next) => {
     try {
-      const fileAsBuffer = fs.readFileSync(blogsFilePath)
+      // const fileAsBuffer = fs.readFileSync(blogsFilePath)
 
-      const fileAsString = fileAsBuffer.toString()
+      // const fileAsString = fileAsBuffer.toString()
 
-      let fileAsJSONArray = JSON.parse(fileAsString)
+      let fileAsJSONArray = JSON.parse(fs.readFileSync(blogsFilePath))
 
       const blogIndex = fileAsJSONArray.findIndex(
         (blog) => blog._id === req.params.id
@@ -147,7 +151,7 @@ blogsRouter.post("/:id/comments", (req, res, next) => {
     console.log(authorName, comment, blog)
     if (blog) {
       if (!blog.comments) {
-        blog.comments = []
+        blog.comments = [] //initializing an empty array
       }
       const newComment = { authorName, comment }
       blog.comments.push(newComment)
@@ -166,7 +170,7 @@ blogsRouter.get("/:id/comments", (req, res, next) => {
     const blogsArray = JSON.parse(fs.readFileSync(blogsJSONPath))
     const blog = blogsArray.find((blog) => blog._id === req.params.id)
     if (blog) {
-      res.send(blog.comments ? blog.comments : [])
+      res.send(blog.comments ?? [])
     } else {
       next(NotFound(`Blog with id ${req.params.id} not found!`))
     }

@@ -12,7 +12,6 @@ import {
 import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import createHttpError from "http-errors"
-import os from "os"
 
 const server = express() // helps me to create endpoints and api
 
@@ -22,20 +21,24 @@ const loggerMiddleWare = (req, res, next) => {
   console.log(`Request method ${req.method}--url ${req.url}---${new Date()}`)
   req.author = "May"
   next()
-}
+} // it writes what the request is
 
-const __filename = fileURLToPath(import.meta.url)
+const __filename = fileURLToPath(import.meta.url) // C:\Users\bino_\May\Fs05\Me\Strive-blog-api\src\server.js // the path of file I am in
 
 const __dirname = dirname(__filename)
+//folder I am in
+const publicDirectory = path.join(__dirname, "../public") // joining the folder with the public
+console.log(publicDirectory) // puclic directory ??
+server.use(loggerMiddleWare) // any request comes to the server passes and writes what the request is and url in consol
 
-const publicDirectory = path.join(__dirname, "../public")
-
-server.use(loggerMiddleWare)
+// If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED ??
 
 server.use(express.json())
-const publicFolderPath = join(process.cwd(), "./public")
 
-const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL]
+const publicFolderPath = join(process.cwd(), "./public") // joining current working directory with the public folder  //// puclic directory ??
+
+console.log(publicFolderPath)
+const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL] // cors stops anyone any request not in the whitelist
 
 const corsOpts = {
   origin: (origin, corsNext) => {
@@ -52,10 +55,8 @@ const corsOpts = {
   },
 }
 
-server.use(express.static(publicFolderPath))
+server.use(express.static(publicFolderPath)) // serve files
 server.use(cors(corsOpts))
-
-// If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED
 
 // ****************** ENDPOINTS *********************
 server.use(express.static(publicDirectory))
