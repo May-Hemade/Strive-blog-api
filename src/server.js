@@ -12,6 +12,7 @@ import {
 import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import createHttpError from "http-errors"
+import os from "os"
 
 const server = express() // helps me to create endpoints and api
 
@@ -70,7 +71,6 @@ server.use(genericErrorHandler) // 500
 server.listen(port, () => {
   console.table(listEndpoints(server))
   console.log("Server is running on port:", port)
-  console.log("hey", process.env.BE_HOST)
 })
 server.on("error", (error) =>
   console.log(`❌ Server is not running due to : ${error}`)
