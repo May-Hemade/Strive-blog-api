@@ -26,7 +26,7 @@ const __filename = fileURLToPath(import.meta.url)
 
 const __dirname = dirname(__filename)
 
-const publicDirectory = path.join(__dirname, "../public")
+// const publicDirectory = path.join(__dirname, "../public")
 
 server.use(loggerMiddleWare)
 
@@ -56,7 +56,7 @@ server.use(cors(corsOpts))
 // If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED
 
 // ****************** ENDPOINTS *********************
-server.use(express.static(publicDirectory))
+// server.use(express.static(publicDirectory))
 server.use("/authors", authorsRouter)
 server.use("/blogs", blogsRouter)
 

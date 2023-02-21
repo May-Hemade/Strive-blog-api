@@ -5,6 +5,7 @@ import { fileURLToPath } from "url"
 import fs from "fs"
 
 import multer from "multer"
+import { saveAuthorsAvatars, saveBlogsCover } from "../../lib/fs-tools.js"
 
 const __filename = fileURLToPath(import.meta.url)
 
@@ -15,11 +16,23 @@ const blogDirectory = path.join(__dirname, "../../../public/img/blogPosts")
 
 export const parseFile = multer()
 
-export const uploadAuthorAvatar = (req, res, next) => {
-  upload(authorDirectory, req, next)
+export const uploadAuthorAvatar = async (req, res, next) => {
+  const { originalname, buffer } = req.file
+  const extension = extname(originalname)
+  const fileName = `${req.params.id}${extension}`
+  await saveAuthorsAvatars(fileName, buffer)
+  const link = `${process.env.BE_HOST}${fileName}`
+  req.file = link
+  next()
 }
-export const uploadBlogCover = (req, res, next) => {
-  upload(blogDirectory, req, next)
+export const uploadBlogCover = async (req, res, next) => {
+  const { originalname, buffer } = req.file
+  const extension = extname(originalname)
+  const fileName = `${req.params.id}${extension}`
+  await saveBlogsCover(fileName, buffer)
+  const link = `${process.env.BE_HOST}${fileName}`
+  req.file = link
+  next()
 }
 
 const upload = (dir, req, next) => {
