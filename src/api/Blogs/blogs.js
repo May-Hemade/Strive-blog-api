@@ -15,6 +15,8 @@ import { getBlogs, writeBlogs } from "../../lib/fs-tools.js"
 import multer from "multer"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
 import { v2 as cloudinary } from "cloudinary"
+import { getPdfReadableStream } from "../../lib/pdf-tools.js"
+import { pipeline } from "stream"
 const { NotFound, Unauthorized, BadRequest } = httpErrors
 const blogsRouter = express.Router()
 
@@ -230,6 +232,25 @@ blogsRouter.get("/:id/comments", async (req, res, next) => {
     }
   } catch (error) {
     next(error)
+  }
+})
+
+blogsRouter.get("/:id/pdf", async (req, res, next) => {
+  try {
+    res.setHeader("Content-Type", "application/pdf")
+    const blogs = await getBlogs()
+    const blogIndex = blogs.findIndex((blog) => blog._id === req.params.id)
+    if (blogIndex === -1) {
+      res.status(404).send("blog not found")
+    }
+    const blog = blogs[blogIndex]
+    const source = await getPdfReadableStream(blog)
+    pipeline(source, res, (err) => {
+      if (err) console.log(err)
+      source.end()
+    })
+  } catch (error) {
+    console.log(error)
   }
 })
 

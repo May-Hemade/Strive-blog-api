@@ -2,7 +2,8 @@ import { fileURLToPath } from "url"
 import { dirname, join } from "path"
 import fs from "fs-extra"
 
-const { readJSON, writeJSON, writeFile } = fs
+const { readJSON, writeJSON, writeFile, createReadStream, createWriteStream } =
+  fs
 
 const apiFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../api")
 const publicFolderPathAuthors = join(process.cwd(), "./public/img/authors")
@@ -26,3 +27,7 @@ export const saveAuthorsAvatars = (fileName, contentAsABuffer) =>
 
 export const saveBlogsCover = (fileName, contentAsABuffer) =>
   writeFile(join(publicFolderPathBlogs, fileName), contentAsABuffer)
+
+export const getBlogJsonReadableStream = () => createReadStream(blogsJSONPath)
+// export const getPDFWritableStream = (filename) =>
+//   createWriteStream(join(dataFolderPath, filename))
