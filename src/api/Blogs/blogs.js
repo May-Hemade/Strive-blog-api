@@ -244,8 +244,9 @@ blogsRouter.get("/:id/pdf", async (req, res, next) => {
       res.status(404).send("blog not found")
     }
     const blog = blogs[blogIndex]
-    const source = await getPdfReadableStream(blog)
+    const source = await getPdfReadableStream(blog) // this pdf stream
     pipeline(source, res, (err) => {
+      // the contacts the stream to where it will go
       if (err) console.log(err)
       source.end()
     })
