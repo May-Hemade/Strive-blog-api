@@ -15,6 +15,7 @@ console.log("ROOT OF THE PROJECT:", process.cwd())
 console.log("DATA FOLDER PATH: ", apiFolderPath)
 const authorsJSONPath = join(apiFolderPath, "/authors/authors.json")
 const blogsJSONPath = join(apiFolderPath, "/blogs/blogs.json")
+const dataFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../data")
 
 export const getAuthors = () => readJSON(authorsJSONPath)
 export const writeAuthors = (authorsArray) =>
@@ -28,6 +29,6 @@ export const saveAuthorsAvatars = (fileName, contentAsABuffer) =>
 export const saveBlogsCover = (fileName, contentAsABuffer) =>
   writeFile(join(publicFolderPathBlogs, fileName), contentAsABuffer)
 
-export const getBlogJsonReadableStream = () => createReadStream(blogsJSONPath)
-// export const getPDFWritableStream = (filename) =>
-//   createWriteStream(join(dataFolderPath, filename))
+export const getBlogJsonReadableStream = () => createReadStream(blogsJSONPath) //to read from
+export const getPDFWritableStream = (filename) =>
+  createWriteStream(join(publicFolderPathBlogs, filename)) // gives me a way to save a file

@@ -51,6 +51,7 @@ const corsOpts = {
 }
 
 server.use(express.static(publicFolderPath))
+server.use("/pdf", express.static(publicFolderPath))
 server.use(cors(corsOpts))
 
 // If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED

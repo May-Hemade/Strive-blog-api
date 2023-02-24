@@ -11,12 +11,23 @@ import {
 } from "./validation.js"
 import httpErrors from "http-errors"
 import { parseFile, uploadBlogCover } from "../../utils/upload/index.js"
-import { getBlogs, writeBlogs } from "../../lib/fs-tools.js"
+import {
+  getBlogJsonReadableStream,
+  getBlogs,
+  writeBlogs,
+} from "../../lib/fs-tools.js"
 import multer from "multer"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
 import { v2 as cloudinary } from "cloudinary"
-import { getPdfReadableStream } from "../../lib/pdf-tools.js"
+import {
+  asyncPDFGeneration,
+  getPdfReadableStream,
+} from "../../lib/pdf-tools.js"
 import { pipeline } from "stream"
+import { createGzip } from "zlib"
+import json2csv from "json2csv"
+import { env } from "process"
+
 const { NotFound, Unauthorized, BadRequest } = httpErrors
 const blogsRouter = express.Router()
 
@@ -90,6 +101,21 @@ blogsRouter.put("/:id", async (req, res, next) => {
     blogsArray[index] = updatedBlog
     fs.writeFileSync(blogsJSONPath, JSON.stringify(blogsArray))
     res.send(updatedBlog)
+  } catch (error) {
+    next(error)
+  }
+})
+blogsRouter.get("/blogsCSV", (req, res, next) => {
+  try {
+    res.setHeader("Content-Disposition", "attachment; filename=blogs.csv")
+    const source = getBlogJsonReadableStream()
+    const transform = new json2csv.Transform({
+      fields: ["_id", "title", "category"],
+    })
+    const destination = res
+    pipeline(source, transform, destination, (err) => {
+      if (err) console.log(err)
+    })
   } catch (error) {
     next(error)
   }
@@ -235,6 +261,20 @@ blogsRouter.get("/:id/comments", async (req, res, next) => {
   }
 })
 
+blogsRouter.get("/blogs", (req, res, next) => {
+  try {
+    res.setHeader("Content-Disposition", "attachment; filename=blogs.json.gz")
+    const source = getBooksJsonReadableStream()
+    const transform = createGzip()
+    const destination = res
+    pipeline(source, transform, destination, (error) => {
+      if (error) console.log(error)
+    })
+  } catch (error) {
+    next(error)
+  }
+})
+
 blogsRouter.get("/:id/pdf", async (req, res, next) => {
   try {
     res.setHeader("Content-Type", "application/pdf")
@@ -255,4 +295,36 @@ blogsRouter.get("/:id/pdf", async (req, res, next) => {
   }
 })
 
+// blogsRouter.get("/blogsCSV", (req, res, next) => {
+//   try {
+//     res.setHeader("Content-Disposition", "attachment; filename=blogs.csv")
+//     const source = getBlogJsonReadableStream()
+//     const transform = new json2csv.Transform({
+//       fields: ["_id", "title", "category"],
+//     })
+//     const destination = res
+//     pipeline(source, transform, destination, (err) => {
+//       if (err) console.log(err)
+//     })
+//   } catch (error) {
+//     next(error)
+//   }
+// })  ====> neeeds to be before id
+
+blogsRouter.get("/:id/asyncPdf", async (req, res, next) => {
+  try {
+    const blogs = await getBlogs()
+    const blogIndex = blogs.findIndex((blog) => blog._id === req.params.id)
+    if (blogIndex === -1) {
+      res.status(404).send("blog not found")
+    }
+    const blog = blogs[blogIndex]
+    await asyncPDFGeneration(blog)
+    // res.redirect(`${process.env.BE_HOST}img/blogPosts/blog-${blog._id}.pdf`)
+
+    res.redirect(`${process.env.BE_HOST}img/blogPosts/perocszsldu8d1uc.jpg`)
+  } catch (error) {
+    next(error)
+  }
+})
 export default blogsRouter
