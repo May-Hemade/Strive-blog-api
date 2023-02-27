@@ -3,6 +3,9 @@ import listEndpoints from "express-list-endpoints"
 import authorsRouter from "./api/authors/index.js"
 import cors from "cors"
 import blogsRouter from "./api/Blogs/blogs.js"
+import swaggerUi from "swagger-ui-express"
+const require = createRequire(import.meta.url) // construct the require method
+const swaggerDocument = require("./swagger.json")
 import {
   badRequestHandler,
   genericErrorHandler,
@@ -11,6 +14,7 @@ import {
 } from "./utils/errorHandlers.js"
 import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
+import { createRequire } from "module"
 
 const server = express() // helps me to create endpoints and api
 
@@ -21,6 +25,8 @@ const loggerMiddleWare = (req, res, next) => {
   req.author = "May"
   next()
 }
+
+server.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 const __filename = fileURLToPath(import.meta.url)
 

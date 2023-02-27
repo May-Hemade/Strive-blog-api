@@ -27,6 +27,7 @@ import { pipeline } from "stream"
 import { createGzip } from "zlib"
 import json2csv from "json2csv"
 import { env } from "process"
+import { sendRegistrationEmail } from "../../lib/emails-tools.js"
 
 const { NotFound, Unauthorized, BadRequest } = httpErrors
 const blogsRouter = express.Router()
@@ -64,6 +65,38 @@ blogsRouter.get(
   }
 )
 
+// blogsRouter.post(
+//   "/",
+//   checkBlogSchema,
+//   triggerBadRequest,
+//   async (req, res, next) => {
+//     try {
+//       const { category, title, cover, readTime, author, content } = req.body
+//       const newBlog = {
+//         category,
+//         title,
+//         cover,
+//         readTime,
+//         author,
+//         content,
+//         createdAt: new Date(),
+//         updatedAt: new Date(),
+//         _id: uniqid(),
+//       }
+//       const blogsArray = await getBlogs()
+//       blogsArray.push(newBlog)
+//       await writeBlogs(blogsArray)
+//       res.status(200).send(newBlog)
+
+//       const { email } = req.body
+//       await sendRegistrationEmail(email)
+//       res.send({ message: "email sent" })
+//     } catch (error) {
+//       next(error)
+//     }
+//   }
+// )
+
 blogsRouter.post(
   "/",
   checkBlogSchema,
@@ -85,6 +118,10 @@ blogsRouter.post(
       const blogsArray = await getBlogs()
       blogsArray.push(newBlog)
       await writeBlogs(blogsArray)
+      await asyncPDFGeneration(newBlog)
+      const { email } = req.body
+      await sendRegistrationEmail(newBlog)
+
       res.status(200).send(newBlog)
     } catch (error) {
       next(error)

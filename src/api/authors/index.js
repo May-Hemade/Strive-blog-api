@@ -9,6 +9,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary"
 import { getAuthors, writeAuthors } from "../../lib/fs-tools.js"
 import { parseFile, uploadAuthorAvatar } from "../../utils/upload/index.js"
 import { checkAuthorSchema, triggerBadRequest } from "./validation.js"
+import { sendRegistrationEmail } from "../../lib/emails-tools.js"
 
 // // 1. We gonna start from the current's file path --> D:\Epicode\2022\BE-MASTER-03\U4\epicode-u4-d2-3\src\api\users\index.js
 // console.log("CURRENTS FILE URL: ", import.meta.url)
@@ -203,5 +204,15 @@ authorsRouter.post(
     }
   }
 )
+
+authorsRouter.post("/register", async (req, res, next) => {
+  try {
+    const { email } = req.body
+    await sendRegistrationEmail(email)
+    res.send({ message: "email sent" })
+  } catch (error) {
+    next(error)
+  }
+})
 
 export default authorsRouter

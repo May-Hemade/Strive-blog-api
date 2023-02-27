@@ -7,7 +7,10 @@ const { readJSON, writeJSON, writeFile, createReadStream, createWriteStream } =
 
 const apiFolderPath = join(dirname(fileURLToPath(import.meta.url)), "../api")
 const publicFolderPathAuthors = join(process.cwd(), "./public/img/authors")
-const publicFolderPathBlogs = join(process.cwd(), "./public/img/blogPosts")
+export const publicFolderPathBlogs = join(
+  process.cwd(),
+  "./public/img/blogPosts"
+)
 
 console.log("ROOT OF THE PROJECT:", process.cwd())
 // console.log("PUBLIC FOLDER:", publicFolderPath)
