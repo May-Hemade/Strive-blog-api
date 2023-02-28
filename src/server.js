@@ -2,7 +2,7 @@ import express from "express" // NEW IMPORT SYNTAX (do not forget to add type: "
 import listEndpoints from "express-list-endpoints"
 import authorsRouter from "./api/authors/index.js"
 import cors from "cors"
-import blogsRouter from "./api/Blogs/blogs.js"
+
 import swaggerUi from "swagger-ui-express"
 const require = createRequire(import.meta.url) // construct the require method
 const swaggerDocument = require("./swagger.json")
@@ -15,10 +15,12 @@ import {
 import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { createRequire } from "module"
+import mongoose from "mongoose"
+import blogsRouter from "./api/blogs/indexMongo.js"
 
 const server = express() // helps me to create endpoints and api
 
-const port = 3001
+const port = process.env.PORT || 3001
 
 const loggerMiddleWare = (req, res, next) => {
   console.log(`Request method ${req.method}--url ${req.url}---${new Date()}`)
@@ -32,9 +34,8 @@ const __filename = fileURLToPath(import.meta.url)
 
 const __dirname = dirname(__filename)
 
-// const publicDirectory = path.join(__dirname, "../public")
-
-server.use(loggerMiddleWare)
+const publicDirectory =
+  path.join(__dirname, "../public") === server.use(loggerMiddleWare)
 
 server.use(express.json())
 const publicFolderPath = join(process.cwd(), "./public")
@@ -73,11 +74,21 @@ server.use(unauthorizedHandler) // 401
 server.use(notFoundHandler) // 404
 server.use(genericErrorHandler) // 500
 
-server.listen(port, () => {
-  console.table(listEndpoints(server))
-  console.log("Server is running on port:", port)
-  console.log("hey", process.env.BE_HOST)
+// server.listen(port, () => {
+//   console.table(listEndpoints(server))
+//   console.log("Server is running on port:", port)
+//   console.log("hey", process.env.BE_HOST)
+// })
+// server.on("error", (error) =>
+//   console.log(`❌ Server is not running due to : ${error}`)
+// )
+
+mongoose.connect(process.env.MONGO_URL)
+
+mongoose.connection.on("connected", () => {
+  console.log("Successfully connected to Mongo!")
+  server.listen(port, () => {
+    console.table(listEndpoints(server))
+    console.log(`Server is running on port ${port}`)
+  })
 })
-server.on("error", (error) =>
-  console.log(`❌ Server is not running due to : ${error}`)
-)
