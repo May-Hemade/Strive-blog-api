@@ -3,19 +3,25 @@
 // POST /blogPosts => create a new blogPost
 // PUT /blogPosts /123 => edit the blogPost with the given id
 // DELETE /blogPosts /123 => delete the blogPost with the given id
-import BlogsModal from "../Blogs/modal.js"
+import AuthorModel from "../authors/model.js"
 import express from "express"
+import { checkAuthorSchema, checkValidationResult } from "./validation.js"
 
-const blogsRouter = express.Router()
+import mongoose from "mongoose"
+const authorsRouter = express.Router()
 
-blogsRouter.post("/", async (req, res, next) => {
-  try {
-    const newBlog = new BlogsModal(req.body)
-    const { _id } = await newBlog.save()
-    res.status(201).send({ _id })
-  } catch (error) {
-    next(error)
+authorsRouter.post(
+  "/",
+  checkAuthorSchema,
+  checkValidationResult,
+  async (req, res, next) => {
+    try {
+      const author = await new AuthorModel(req.body).save()
+      res.status(201).send(author)
+    } catch (error) {
+      res.status(500).send({ message: error.message })
+    }
   }
-})
+)
 
-export default blogsRouter
+export default authorsRouter

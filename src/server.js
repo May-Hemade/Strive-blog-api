@@ -1,6 +1,6 @@
 import express from "express" // NEW IMPORT SYNTAX (do not forget to add type: "module" to package.json to use this!!)
 import listEndpoints from "express-list-endpoints"
-import authorsRouter from "./api/authors/index.js"
+import authorsRouter from "./api/authors/indexMongo.js"
 import cors from "cors"
 
 import swaggerUi from "swagger-ui-express"

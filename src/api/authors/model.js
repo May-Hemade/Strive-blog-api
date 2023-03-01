@@ -4,15 +4,15 @@ const { Schema, model } = mongoose
 
 const authorsSchema = new Schema(
   {
-    firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    name: { type: String, required: true },
+    surname: { type: String, required: true },
     email: { type: String, required: true },
-    DOB: { type: Date },
-    avatar: { type: String },
+    DOB: { type: String },
+    avatar: { type: String, required: true },
   },
   {
     timestamps: true, // this option automatically the createdAt and updatedAt fields
   }
 )
 
-export default model("User", usersSchema)
+export default model("Author", authorsSchema)
