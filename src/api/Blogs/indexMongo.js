@@ -16,9 +16,14 @@ blogsRouter.post("/", async (req, res, next) => {
 
 blogsRouter.get("/", async (req, res, next) => {
   try {
-    const blogs = await BlogsModel.find().skip(2).limit(5).sort({
-      title: -1,
-    })
+    const blogs = await BlogsModel.find()
+      .sort({
+        title: -1,
+      })
+      .populate({
+        path: "author",
+        select: "name surname avatar",
+      })
 
     res.send(blogs)
   } catch (error) {
@@ -28,8 +33,6 @@ blogsRouter.get("/", async (req, res, next) => {
 blogsRouter.get("/:id", async (req, res, next) => {
   try {
     const blog = await BlogsModel.findById(req.params.id)
-    // const blogs = await BlogsModal.find()
-    // const blog = blogs.filter((blog) => blog._id === req.params.id)
 
     if (blog) {
       res.send(blog)
