@@ -7,8 +7,8 @@ const blogsRouter = express.Router()
 blogsRouter.post("/", async (req, res, next) => {
   try {
     const newBlog = new BlogsModel(req.body)
-    const { _id } = await newBlog.save()
-    res.status(201).send({ _id })
+    const newblog = await newBlog.save()
+    res.status(201).send(newblog)
   } catch (error) {
     next(error)
   }
@@ -16,7 +16,10 @@ blogsRouter.post("/", async (req, res, next) => {
 
 blogsRouter.get("/", async (req, res, next) => {
   try {
-    const blogs = await BlogsModel.find()
+    const blogs = await BlogsModel.find().skip(2).limit(5).sort({
+      title: -1,
+    })
+
     res.send(blogs)
   } catch (error) {
     next(error)
@@ -175,10 +178,5 @@ blogsRouter.delete("/:id/comments/:commentId", async (req, res, next) => {
     next(error)
   }
 })
-// GET /blogPosts/:id/comments => returns all the comments for the specified blog post
-// GET /blogPosts/:id/comments/:commentId=> returns a single comment for the specified blog post
-// POST /blogPosts/:id => adds a new comment for the specified blog post
-// PUT /blogPosts/:id/comment/:commentId => edit the comment belonging to the specified blog post
-// DELETE /blogPosts/:id/comment/:commentId=> delete the comment belonging to the specified blog post
 
 export default blogsRouter
