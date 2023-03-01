@@ -20,6 +20,24 @@ const blogSchema = {
       errorMessage: "cover is a mandatory field and needs to be a string!",
     },
   },
+  "author.name": {
+    in: ["body"],
+    isString: {
+      errorMessage: "author.name validation failed , type must be string",
+    },
+  },
+  "author.ID": {
+    in: ["body"],
+    isString: {
+      errorMessage: "author.id validation failed , type must be string",
+    },
+  },
+  "author.avatar": {
+    in: ["body"],
+    isString: {
+      errorMessage: "author.avatar validation failed , type must be string",
+    },
+  },
 }
 
 export const checkBlogSchema = checkSchema(blogSchema)

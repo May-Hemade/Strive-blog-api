@@ -26,7 +26,14 @@ const blogsJSONPath = join(
 blogsRouter.get("/", async (req, res, next) => {
   try {
     const blogsArray = await getBlogs()
-    res.send(blogsArray)
+
+    let title = req.query.title
+    if (title) {
+      let specificBlog = blogsArray.filter((blog) => blog.title === title)
+      res.send(specificBlog)
+    } else {
+      res.send(blogsArray)
+    }
   } catch (error) {
     res.send(500).send({ message: error.message })
   }

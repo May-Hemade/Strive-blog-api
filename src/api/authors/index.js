@@ -6,7 +6,7 @@ import uniqid from "uniqid" // 3RD PARTY MODULE (npm i uniqid)
 import multer from "multer"
 import { v2 as cloudinary } from "cloudinary"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
-import { getAuthors, writeAuthors } from "../../lib/fs-tools.js"
+import { getAuthors, getBlogs, writeAuthors } from "../../lib/fs-tools.js"
 import { parseFile, uploadAuthorAvatar } from "../../utils/upload/index.js"
 import { checkAuthorSchema, triggerBadRequest } from "./validation.js"
 
@@ -204,4 +204,13 @@ authorsRouter.post(
   }
 )
 
+authorsRouter.get("/:id/blogPosts", async (req, res, next) => {
+  try {
+    let blogs = await getBlogs()
+    let foundBlogs = blogs.filter((blog) => blog.author.ID === req.params.id)
+    res.status(200).send(foundBlogs)
+  } catch (error) {
+    next(error)
+  }
+})
 export default authorsRouter
