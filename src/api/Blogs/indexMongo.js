@@ -24,6 +24,10 @@ blogsRouter.get("/", async (req, res, next) => {
         path: "author",
         select: "name surname avatar",
       })
+      .populate({
+        path: "likes",
+        select: "name",
+      })
 
     res.send(blogs)
   } catch (error) {
@@ -157,6 +161,29 @@ blogsRouter.put("/:id/comments/:commentId", async (req, res, next) => {
     }
   } catch (error) {
     next(error)
+  }
+})
+
+blogsRouter.put("/:id/like", async (req, res, next) => {
+  try {
+    const { authorID } = req.body
+    const isLiked = await BlogsModel.findOne({
+      _id: req.params.id,
+      likes: authorID,
+    })
+    if (isLiked) {
+      await BlogsModel.findByIdAndUpdate(req.params.id, {
+        $pull: { likes: authorID },
+      })
+      res.send("Unliked")
+    } else {
+      await BlogsModel.findByIdAndUpdate(req.params.id, {
+        $push: { likes: authorID },
+      })
+      res.send("liked")
+    }
+  } catch (error) {
+    res.status(500).send({ message: error.message })
   }
 })
 

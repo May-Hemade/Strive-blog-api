@@ -1,6 +1,25 @@
 import mongoose from "mongoose"
 
 const { Schema, model } = mongoose
+
+const CommentSchema = new mongoose.Schema(
+  {
+    text: { type: String, required: true },
+    rate: {
+      type: Number,
+      min: [1, "Rate must be min 1"],
+      max: [5, "Rate can be max 5"],
+      default: 5,
+    },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Authors",
+    },
+  },
+  { timestamps: true }
+)
+
 const blogsSchema = new Schema(
   {
     category: { type: String, required: true },
@@ -10,12 +29,11 @@ const blogsSchema = new Schema(
       value: { type: Number },
       unit: { type: String },
     },
-    comments: [
-      {
-        authorName: String,
-        comment: String,
-      },
-    ],
+    comments: { defualt: [], type: [CommentSchema] },
+    likes: {
+      default: [],
+      type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Author" }],
+    },
 
     author: { type: mongoose.Types.ObjectId, required: true, ref: "Author" },
     content: { type: String },
