@@ -3,18 +3,13 @@ import listEndpoints from "express-list-endpoints"
 import authorsRouter from "./api/authors/index.js"
 import cors from "cors"
 import blogsRouter from "./api/Blogs/blogs.js"
-import {
-  badRequestHandler,
-  genericErrorHandler,
-  notFoundHandler,
-  unauthorizedHandler,
-} from "./utils/errorHandlers.js"
+import { badRequestHandler, genericErrorHandler, notFoundHandler, unauthorizedHandler } from "./utils/errorHandlers.js"
 import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
 
 const server = express() // helps me to create endpoints and api
 
-const port = 3001
+const port = process.env.PORT || 3001
 
 const loggerMiddleWare = (req, res, next) => {
   console.log(`Request method ${req.method}--url ${req.url}---${new Date()}`)
@@ -43,9 +38,7 @@ const corsOpts = {
       corsNext(null, true)
     } else {
       // If it is not --> error
-      corsNext(
-        createHttpError(400, `Origin ${origin} is not in the whitelist!`)
-      )
+      corsNext(createHttpError(400, `Origin ${origin} is not in the whitelist!`))
     }
   },
 }
@@ -71,6 +64,4 @@ server.listen(port, () => {
   console.log("Server is running on port:", port)
   console.log("hey", process.env.BE_HOST)
 })
-server.on("error", (error) =>
-  console.log(`❌ Server is not running due to : ${error}`)
-)
+server.on("error", (error) => console.log(`❌ Server is not running due to : ${error}`))
