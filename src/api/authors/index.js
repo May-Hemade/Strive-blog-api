@@ -14,14 +14,8 @@ console.log("CURRENTS FILE PATH: ", fileURLToPath(import.meta.url))
 // 2. We can obtain the parent's folder path --> D:\Epicode\2022\BE-MASTER-03\U4\epicode-u4-d2-3\src\api\users\
 console.log("PARENT FOLDER PATH: ", dirname(fileURLToPath(import.meta.url)))
 // 3. We can concatenate parent's folder path with "users.json" --> D:\Epicode\2022\BE-MASTER-03\U4\epicode-u4-d2-3\src\api\users\users.json
-console.log(
-  "TARGET: ",
-  join(dirname(fileURLToPath(import.meta.url)), "authors.json")
-)
-const authorsJSONPath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "authors.json"
-)
+console.log("TARGET: ", join(dirname(fileURLToPath(import.meta.url)), "authors.json"))
+const authorsJSONPath = join(dirname(fileURLToPath(import.meta.url)), "authors.json")
 
 const authorsRouter = express.Router()
 
@@ -42,9 +36,7 @@ authorsRouter.post("/", (req, res) => {
   //.json text file
   const authorArray = JSON.parse(fs.readFileSync(authorsJSONPath))
 
-  let emailExists = authorArray.some(
-    (author) => author.email.toLowerCase() === email.toLowerCase()
-  )
+  let emailExists = authorArray.some((author) => author.email.toLowerCase() === email.toLowerCase())
   if (emailExists) {
     res.status(400).send({ message: "email already exsits" })
   } else {
@@ -62,9 +54,7 @@ authorsRouter.post("/checkEmail", (req, res) => {
   // we read our array and i parsed into an array of obj because it was a string
   //.json text file
   const authorArray = JSON.parse(fs.readFileSync(authorsJSONPath))
-  let emailExists = authorArray.some(
-    (author) => author.email.toLowerCase() === email.toLowerCase()
-  )
+  let emailExists = authorArray.some((author) => author.email.toLowerCase() === email.toLowerCase())
 
   res.status(201).send({
     exists: emailExists,
@@ -118,40 +108,32 @@ const cloudinaryUploader = multer({
   }),
 }).single("avatar")
 
-authorsRouter.post(
-  "/:id/avatar",
-  cloudinaryUploader,
-  async (req, res, next) => {
-    try {
-      const fileAsBuffer = fs.readFileSync(authorsJSONPath)
+authorsRouter.post("/:id/avatar", cloudinaryUploader, async (req, res, next) => {
+  try {
+    const fileAsBuffer = fs.readFileSync(authorsJSONPath)
 
-      const fileAsString = fileAsBuffer.toString()
+    const fileAsString = fileAsBuffer.toString()
 
-      let authors = JSON.parse(fileAsString)
+    let authors = JSON.parse(fileAsString)
 
-      const authorIndex = authors.findIndex(
-        (author) => author.ID === req.params.id
-      )
-      if (authorIndex === -1) {
-        // if (!authorIndex == -1)??
-        res
-          .status(404)
-          .send({ message: `Author with ${req.params.id} is not found!` })
-      }
-      const previousAuthorData = authors[authorIndex]
-      const changedAuthor = {
-        ...previousAuthorData,
-        avatar: req.file.path,
-        updatedAt: new Date(),
-        // id: req.params.id, ??
-      }
-      authors[authorIndex] = changedAuthor
-      fs.writeFileSync(authorsJSONPath, JSON.stringify(authors))
-      res.send(changedAuthor)
-    } catch (error) {
-      res.send(500).send({ message: error.message })
+    const authorIndex = authors.findIndex((author) => author.ID === req.params.id)
+    if (authorIndex === -1) {
+      // if (!authorIndex == -1)??
+      res.status(404).send({ message: `Author with ${req.params.id} is not found!` })
     }
+    const previousAuthorData = authors[authorIndex]
+    const changedAuthor = {
+      ...previousAuthorData,
+      avatar: req.file.path,
+      updatedAt: new Date(),
+      // id: req.params.id, ??
+    }
+    authors[authorIndex] = changedAuthor
+    fs.writeFileSync(authorsJSONPath, JSON.stringify(authors))
+    res.send(changedAuthor)
+  } catch (error) {
+    res.send(500).send({ message: error.message })
   }
-)
+})
 
 export default authorsRouter
