@@ -11,6 +11,7 @@ import {
 } from "./utils/errorHandlers.js"
 import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
+import createHttpError from "http-errors"
 
 const server = express() // helps me to create endpoints and api
 

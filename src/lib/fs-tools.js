@@ -22,7 +22,7 @@ export const getBlogs = () => readJSON(blogsJSONPath)
 export const writeBlogs = (blogsArray) => writeJSON(blogsJSONPath, blogsArray)
 
 export const saveAuthorsAvatars = (fileName, contentAsABuffer) =>
-  writeFile(join(publicFolderPathAuthors, fileName), contentAsABuffer)
+  writeFile(join(publicFolderPathAuthors, fileName), contentAsABuffer) //use this in tools
 
 export const saveBlogsCover = (fileName, contentAsABuffer) =>
   writeFile(join(publicFolderPathBlogs, fileName), contentAsABuffer)
