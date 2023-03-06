@@ -25,7 +25,7 @@ export const notFoundHandler = (err, req, res, next) => {
 }
 
 export const genericErrorHandler = (err, req, res, next) => {
-  console.log("ERROR RECEIVED FROM UP ABOVE:", err)
+  console.log("ERROR RECEIVED FROM UP ABOVE:", err) // very imp to know the reason why we have the error :D
   res
     .status(500)
     .send({ message: "An error occurred on our side! we gonna fix that asap" })

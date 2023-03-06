@@ -1,49 +1,37 @@
 import { checkSchema, validationResult } from "express-validator"
 import createHttpError from "http-errors"
 
-const blogSchema = {
-  category: {
+const authorSchema = {
+  name: {
     in: ["body"],
     isString: {
-      errorMessage: "category is a mandatory field and needs to be a string!",
+      errorMessage: "name is a mandatory field and needs to be a string!",
     },
   },
-  title: {
+  surname: {
     in: ["body"],
     isString: {
-      errorMessage: "title is a mandatory field and needs to be a string!",
+      errorMessage: "surname is a mandatory field and needs to be a string!",
     },
   },
-  cover: {
+  avatar: {
     in: ["body"],
     isString: {
-      errorMessage: "cover is a mandatory field and needs to be a string!",
+      errorMessage: "avatar is a mandatory field and needs to be a string!",
     },
   },
-  "author.name": {
+  email: {
     in: ["body"],
     isString: {
-      errorMessage: "author.name validation failed , type must be string",
-    },
-  },
-  "author.ID": {
-    in: ["body"],
-    isString: {
-      errorMessage: "author.id validation failed , type must be string",
-    },
-  },
-  "author.avatar": {
-    in: ["body"],
-    isString: {
-      errorMessage: "author.avatar validation failed , type must be string",
+      errorMessage: "email is a mandatory field and needs to be a string!",
     },
   },
 }
 
-export const checkBlogSchema = checkSchema(blogSchema)
+export const checkAuthorSchema = checkSchema(authorSchema)
 
 export const triggerBadRequest = (req, res, next) => {
-  // 1. Check if previous middleware ( checksBooksSchema) has detected any error in req.body
+  // 1. Check if previous middleware ( checkAuthorSchema) has detected any error in req.body
   const errors = validationResult(req)
 
   console.log(errors.array())
@@ -51,7 +39,7 @@ export const triggerBadRequest = (req, res, next) => {
   if (!errors.isEmpty()) {
     // 2.1 If we have any error --> trigger error handler 400
     next(
-      createHttpError(400, "Errors during blog validation", {
+      createHttpError(400, "Errors during author validation", {
         errorsList: errors.array(),
       })
     )
