@@ -25,7 +25,7 @@ blogsRouter.get("/", async (req, res, next) => {
       res.send(blogsArray)
     }
   } catch (error) {
-    res.send(500).send({ message: error.message })
+    next(error)
   }
 })
 
@@ -37,7 +37,7 @@ blogsRouter.get("/search", checkSearchSchema, checkValidationResult, async (req,
     const filtered = blogsArray.filter((blog) => blog.title.toLowerCase().includes(title.toLowerCase()))
     res.send(filtered)
   } catch (error) {
-    res.send(500).send({ message: error.message })
+    next(error)
   }
 })
 
@@ -123,7 +123,7 @@ blogsRouter.post("/:id/uploadCover", parseFile.single("cover"), uploadBlogCover,
     await writeBlogs(fileAsJSONArray)
     res.send(changedBlog)
   } catch (error) {
-    res.send(500).send({ message: error.message })
+    next(error)
     next(error)
   }
 })
@@ -156,7 +156,7 @@ blogsRouter.post("/:id/uploadCoverCloudinary", cloudinaryUploader, async (req, r
     await writeBlogs(fileAsJSONArray)
     res.send(changedBlog)
   } catch (error) {
-    res.send(500).send({ message: error.message })
+    next(error)
   }
 })
 
