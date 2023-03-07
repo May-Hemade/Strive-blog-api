@@ -139,7 +139,6 @@ const cloudinaryUploader = multer({
     },
   }),
 }).single("avatar")
-
 authorsRouter.post("/:id/avatarCloudinary", cloudinaryUploader, async (req, res, next) => {
   try {
     let authors = await getAuthors()

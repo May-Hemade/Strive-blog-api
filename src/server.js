@@ -11,7 +11,7 @@ import createHttpError from "http-errors"
 const server = express() // helps me to create endpoints and api
 
 const port = process.env.PORT || 3001
-
+console.log("this is the port ", port)
 const loggerMiddleWare = (req, res, next) => {
   console.log(`Request method ${req.method}--url ${req.url}---${new Date()}`)
   req.author = "May"
