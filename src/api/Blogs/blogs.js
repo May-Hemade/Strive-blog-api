@@ -201,7 +201,7 @@ blogsRouter.get("/:id/comments", async (req, res, next) => {
 
 blogsRouter.get("/:id/pdf", async (req, res, next) => {
   try {
-    res.setHeader("Content-Type", "application/pdf")
+    res.setHeader("Content-Disposition", "attachment; may.pdf")
     const blogs = await getBlogs()
     const blogIndex = blogs.findIndex((blog) => blog._id === req.params.id)
     if (blogIndex === -1) {

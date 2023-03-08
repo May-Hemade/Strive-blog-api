@@ -33,7 +33,7 @@ export const getPdfReadableStream = async (blog) => {
       // blog.map(async(blog)=>{[
       { text: blog.title, style: "header" },
       { text: blog.category, style: "subheader" },
-      { text: blog.content.replace(/(<([^>]+)>)/gi, ""), style: "subheader" },
+      { text: blog.content ? blog.content.text : "", style: "subheader" },
       {
         image: `data:image/jpeg;base64,${await changeImageType(blog.cover)}`,
         width: 150,
@@ -62,3 +62,5 @@ export const getPdfReadableStream = async (blog) => {
 
   return pdfReadableStream
 }
+
+// ${response.headers.get('content-type')
