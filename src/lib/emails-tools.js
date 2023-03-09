@@ -1,10 +1,13 @@
 import sgMail from "@sendgrid/mail"
+import { join } from "path"
 import { publicFolderPathBlogs } from "./fs-tools.js"
+import fs from "fs-extra"
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+
 export const sendRegistrationEmail = async (recipientAddress) => {
   const msg = {
-    to: "binoprod@gmail.com",
+    to: recipientAddress,
     from: process.env.SENDER_EMAIL,
     subject: "Hello first email sent!",
     text: "Welcome to the blog land",
@@ -16,11 +19,11 @@ export const sendRegistrationEmail = async (recipientAddress) => {
 }
 
 export const sendEmailBlog = async (blog) => {
-  let pathToAttachment = join(publicFolderPathBlogs, "attachment.pdf")
+  let pathToAttachment = join(publicFolderPathBlogs, `blog-${blog._id}.pdf`)
   let attachment = fs.readFileSync(pathToAttachment).toString("base64")
-
+  console.log(process.env.SENDGRID_API_KEY)
   const msg = {
-    to: blog.author.email,
+    to: "may.hemade1993@gmail.com", //blog.author.email
     from: process.env.SENDER_EMAIL,
     subject: "Hello first email sent!",
     text: "Welcome to the blog land",
@@ -33,6 +36,7 @@ export const sendEmailBlog = async (blog) => {
         disposition: "attachment",
       },
     ],
+    link: `http://localhost:3001/blogs/${blog._id}`,
   }
   let response = await sgMail.send(msg)
   console.log(response[0].statusCode)

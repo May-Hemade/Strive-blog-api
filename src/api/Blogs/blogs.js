@@ -3,39 +3,24 @@ import fs, { write } from "fs" // CORE MODULE (no need to install it!!!)
 import { fileURLToPath } from "url" // CORE MODULE
 import { dirname, join } from "path" // CORE MODULE
 import uniqid from "uniqid" //
-import {
-  checkBlogSchema,
-  checkSearchSchema,
-  checkValidationResult,
-  triggerBadRequest,
-} from "./validation.js"
+import { checkBlogSchema, checkSearchSchema, checkValidationResult, triggerBadRequest } from "./validation.js"
 import httpErrors from "http-errors"
 import { parseFile, uploadBlogCover } from "../../utils/upload/index.js"
-import {
-  getBlogJsonReadableStream,
-  getBlogs,
-  writeBlogs,
-} from "../../lib/fs-tools.js"
+import { getBlogJsonReadableStream, getBlogs, writeBlogs } from "../../lib/fs-tools.js"
 import multer from "multer"
 import { CloudinaryStorage } from "multer-storage-cloudinary"
 import { v2 as cloudinary } from "cloudinary"
-import {
-  asyncPDFGeneration,
-  getPdfReadableStream,
-} from "../../lib/pdf-tools.js"
+import { asyncPDFGeneration, getPdfReadableStream } from "../../lib/pdf-tools.js"
 import { pipeline } from "stream"
 import { createGzip } from "zlib"
 import json2csv from "json2csv"
 import { env } from "process"
-import { sendRegistrationEmail } from "../../lib/emails-tools.js"
+import { sendEmailBlog } from "../../lib/emails-tools.js"
 
 const { NotFound, Unauthorized, BadRequest } = httpErrors
 const blogsRouter = express.Router()
 
-const blogsJSONPath = join(
-  dirname(fileURLToPath(import.meta.url)),
-  "blogs.json"
-)
+const blogsJSONPath = join(dirname(fileURLToPath(import.meta.url)), "blogs.json")
 
 blogsRouter.get("/", async (req, res, next) => {
   try {
@@ -46,24 +31,17 @@ blogsRouter.get("/", async (req, res, next) => {
   }
 })
 
-blogsRouter.get(
-  "/search",
-  checkSearchSchema,
-  checkValidationResult,
-  async (req, res, next) => {
-    try {
-      const { title } = req.query
+blogsRouter.get("/search", checkSearchSchema, checkValidationResult, async (req, res, next) => {
+  try {
+    const { title } = req.query
 
-      const blogsArray = await getBlogs()
-      const filtered = blogsArray.filter((blog) =>
-        blog.title.toLowerCase().includes(title.toLowerCase())
-      )
-      res.send(filtered)
-    } catch (error) {
-      res.send(500).send({ message: error.message })
-    }
+    const blogsArray = await getBlogs()
+    const filtered = blogsArray.filter((blog) => blog.title.toLowerCase().includes(title.toLowerCase()))
+    res.send(filtered)
+  } catch (error) {
+    res.send(500).send({ message: error.message })
   }
-)
+})
 
 // blogsRouter.post(
 //   "/",
@@ -97,37 +75,31 @@ blogsRouter.get(
 //   }
 // )
 
-blogsRouter.post(
-  "/",
-  checkBlogSchema,
-  triggerBadRequest,
-  async (req, res, next) => {
-    try {
-      const { category, title, cover, readTime, author, content } = req.body
-      const newBlog = {
-        category,
-        title,
-        cover,
-        readTime,
-        author,
-        content,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        _id: uniqid(),
-      }
-      const blogsArray = await getBlogs()
-      blogsArray.push(newBlog)
-      await writeBlogs(blogsArray)
-      await asyncPDFGeneration(newBlog)
-      const { email } = req.body
-      await sendRegistrationEmail(newBlog)
-
-      res.status(200).send(newBlog)
-    } catch (error) {
-      next(error)
+blogsRouter.post("/", checkBlogSchema, triggerBadRequest, async (req, res, next) => {
+  try {
+    const { category, title, cover, readTime, author, content } = req.body
+    const newBlog = {
+      category,
+      title,
+      cover,
+      readTime,
+      author,
+      content,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      _id: uniqid(),
     }
+    const blogsArray = await getBlogs()
+    blogsArray.push(newBlog)
+    await writeBlogs(blogsArray)
+    await asyncPDFGeneration(newBlog)
+    await sendEmailBlog(newBlog)
+
+    res.status(200).send(newBlog)
+  } catch (error) {
+    next(error)
   }
-)
+})
 
 blogsRouter.put("/:id", async (req, res, next) => {
   try {
@@ -175,9 +147,7 @@ blogsRouter.get("/:id", async (req, res, next) => {
 blogsRouter.delete("/:id", (req, res, next) => {
   try {
     const blogsArray = JSON.parse(fs.readFileSync(blogsJSONPath))
-    const remainingBlogs = blogsArray.filter(
-      (blog) => blog._id !== req.params.body
-    )
+    const remainingBlogs = blogsArray.filter((blog) => blog._id !== req.params.body)
     fs.writeFileSync(blogsJSONPath, JSON.stringify(remainingBlogs))
 
     res.send()
@@ -186,38 +156,29 @@ blogsRouter.delete("/:id", (req, res, next) => {
   }
 })
 
-blogsRouter.post(
-  "/:id/uploadCover",
-  parseFile.single("cover"),
-  uploadBlogCover,
-  async (req, res, next) => {
-    try {
-      let fileAsJSONArray = await getBlogs()
+blogsRouter.post("/:id/uploadCover", parseFile.single("cover"), uploadBlogCover, async (req, res, next) => {
+  try {
+    let fileAsJSONArray = await getBlogs()
 
-      const blogIndex = fileAsJSONArray.findIndex(
-        (blog) => blog._id === req.params.id
-      )
-      if (blogIndex === -1) {
-        res
-          .status(404)
-          .send({ message: `Blog with ${req.params.id} is not found!` })
-        return
-      }
-      const previousBlogData = fileAsJSONArray[blogIndex]
-      const changedBlog = {
-        ...previousBlogData,
-        cover: req.file,
-        updatedAt: new Date(),
-      }
-      fileAsJSONArray[blogIndex] = changedBlog
-      await writeBlogs(fileAsJSONArray)
-      res.send(changedBlog)
-    } catch (error) {
-      res.send(500).send({ message: error.message })
-      next(error)
+    const blogIndex = fileAsJSONArray.findIndex((blog) => blog._id === req.params.id)
+    if (blogIndex === -1) {
+      res.status(404).send({ message: `Blog with ${req.params.id} is not found!` })
+      return
     }
+    const previousBlogData = fileAsJSONArray[blogIndex]
+    const changedBlog = {
+      ...previousBlogData,
+      cover: req.file,
+      updatedAt: new Date(),
+    }
+    fileAsJSONArray[blogIndex] = changedBlog
+    await writeBlogs(fileAsJSONArray)
+    res.send(changedBlog)
+  } catch (error) {
+    res.send(500).send({ message: error.message })
+    next(error)
   }
-)
+})
 
 const cloudinaryUploader = multer({
   storage: new CloudinaryStorage({
@@ -236,13 +197,9 @@ blogsRouter.post(
     try {
       let fileAsJSONArray = await getBlogs()
 
-      const blogIndex = fileAsJSONArray.findIndex(
-        (blog) => blog._id === req.params.id
-      )
+      const blogIndex = fileAsJSONArray.findIndex((blog) => blog._id === req.params.id)
       if (blogIndex === -1) {
-        res
-          .status(404)
-          .send({ message: `Blog with ${req.params.id} is not found!` })
+        res.status(404).send({ message: `Blog with ${req.params.id} is not found!` })
         return
       }
       const previousBlogData = fileAsJSONArray[blogIndex]
