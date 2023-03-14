@@ -1,6 +1,6 @@
 import express from "express" // NEW IMPORT SYNTAX (do not forget to add type: "module" to package.json to use this!!)
 import listEndpoints from "express-list-endpoints"
-import authorsRouter from "./api/authors/indexMongo.js"
+
 import cors from "cors"
 
 import swaggerUi from "swagger-ui-express"
@@ -11,7 +11,8 @@ import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { createRequire } from "module"
 import mongoose from "mongoose"
-import blogsRouter from "./api/blogs/indexMongo.js"
+import blogsRouter from "./api/Blogs/indexMongo.js"
+import authorsRouter from "./api/authors/indexMongo.js"
 
 const server = express() // helps me to create endpoints and api
 
