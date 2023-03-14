@@ -64,7 +64,7 @@ export const checkSearchSchema = checkSchema(searchSchema)
 export const checkValidationResult = (req, res, next) => {
   const errors = validationResult(req)
   if (!errors.isEmpty()) {
-    const error = new Error("Blog post validation is failed")
+    const error = new Error("post validation  failed")
     error.status = 400
     error.errors = errors.array()
     next(error)

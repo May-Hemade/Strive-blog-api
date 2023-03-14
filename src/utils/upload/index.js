@@ -35,17 +35,17 @@ export const uploadBlogCover = async (req, res, next) => {
   next()
 }
 
-const upload = (dir, req, next) => {
-  try {
-    const { originalname, buffer } = req.file
-    const extension = extname(originalname)
-    const fileName = `${req.params.id}${extension}`
-    const pathToFile = path.join(dir, fileName)
-    fs.writeFileSync(pathToFile, buffer)
-    const link = `${process.env.BE_HOST}${fileName}`
-    req.file = link
-    next()
-  } catch (error) {
-    next(error)
-  }
-}
+// const upload = (dir, req, next) => {
+//   try {
+//     const { originalname, buffer } = req.file
+//     const extension = extname(originalname)
+//     const fileName = `${req.params.id}${extension}`
+//     const pathToFile = path.join(dir, fileName)
+//     fs.writeFileSync(pathToFile, buffer)
+//     const link = `${process.env.BE_HOST}${fileName}`
+//     req.file = link
+//     next()
+//   } catch (error) {
+//     next(error)
+//   }
+// }

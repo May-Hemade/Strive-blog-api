@@ -25,5 +25,5 @@ export const saveAuthorsAvatars = (fileName, contentAsABuffer) => writeFile(join
 
 export const saveBlogsCover = (fileName, contentAsABuffer) => writeFile(join(publicFolderPathBlogs, fileName), contentAsABuffer)
 
-export const getBlogJsonReadableStream = () => createReadStream(blogsJSONPath) //to read from csv comma seperated  values
+export const getBlogJsonReadableStream = () => createReadStream(blogsJSONPath) //to read from
 export const getPDFWritableStream = (filename) => createWriteStream(join(publicFolderPathBlogs, filename)) // gives me a way to save a file
