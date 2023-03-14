@@ -6,12 +6,7 @@ import cors from "cors"
 import swaggerUi from "swagger-ui-express"
 const require = createRequire(import.meta.url) // construct the require method
 const swaggerDocument = require("./swagger.json")
-import {
-  badRequestHandler,
-  genericErrorHandler,
-  notFoundHandler,
-  unauthorizedHandler,
-} from "./utils/errorHandlers.js"
+import { badRequestHandler, genericErrorHandler, notFoundHandler, unauthorizedHandler } from "./utils/errorHandlers.js"
 import path, { dirname, join } from "path"
 import { fileURLToPath } from "url"
 import { createRequire } from "module"
@@ -21,26 +16,28 @@ import blogsRouter from "./api/blogs/indexMongo.js"
 const server = express() // helps me to create endpoints and api
 
 const port = process.env.PORT || 3001
-
 const loggerMiddleWare = (req, res, next) => {
   console.log(`Request method ${req.method}--url ${req.url}---${new Date()}`)
   req.author = "May"
   next()
-}
+} // it writes what the request is
 
 server.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 
 const __filename = fileURLToPath(import.meta.url)
 
 const __dirname = dirname(__filename)
-
-const publicDirectory =
-  path.join(__dirname, "../public") === server.use(loggerMiddleWare)
+//folder I am in
+const publicDirectory = path.join(__dirname, "../public") // joining the folder with the public
+console.log(publicDirectory) // puclic directory ??
+server.use(loggerMiddleWare) // any request comes to the server passes and writes what the request is and url in consol
 
 server.use(express.json())
-const publicFolderPath = join(process.cwd(), "./public")
 
-const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL]
+const publicFolderPath = join(process.cwd(), "./public") // joining current working directory with the public folder  //// puclic directory ??
+
+console.log(publicFolderPath)
+const whitelist = [process.env.FE_DEV_URL, process.env.FE_PROD_URL] // cors stops anyone any request not in the whitelist
 
 const corsOpts = {
   origin: (origin, corsNext) => {
@@ -50,9 +47,7 @@ const corsOpts = {
       corsNext(null, true)
     } else {
       // If it is not --> error
-      corsNext(
-        createHttpError(400, `Origin ${origin} is not in the whitelist!`)
-      )
+      corsNext(createHttpError(400, `Origin ${origin} is not in the whitelist!`))
     }
   },
 }
@@ -60,8 +55,6 @@ const corsOpts = {
 server.use(express.static(publicFolderPath))
 server.use("/pdf", express.static(publicFolderPath))
 server.use(cors(corsOpts))
-
-// If you do not add this line here BEFORE the endpoints, all req.body will be UNDEFINED
 
 // ****************** ENDPOINTS *********************
 // server.use(express.static(publicDirectory))

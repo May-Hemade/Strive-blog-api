@@ -1,6 +1,6 @@
 export const badRequestHandler = (err, req, res, next) => {
   if (err.status === 400) {
-    res.status(400).send({ message: err.message })
+    res.status(400).send({ message: err.message, list: err.errorsList ? err.errorsList.map((e) => e.msg) : [] })
   } else {
     next(err)
   }
@@ -24,7 +24,5 @@ export const notFoundHandler = (err, req, res, next) => {
 
 export const genericErrorHandler = (err, req, res, next) => {
   console.log("ERROR RECEIVED FROM UP ABOVE:", err) // very imp to know the reason why we have the error :D
-  res
-    .status(500)
-    .send({ message: "An error occurred on our side! we gonna fix that asap" })
+  res.status(500).send({ message: "An error occurred on our side! we gonna fix that asap" })
 }
