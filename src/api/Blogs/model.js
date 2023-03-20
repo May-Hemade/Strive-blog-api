@@ -29,7 +29,7 @@ const blogsSchema = new Schema(
       value: { type: Number },
       unit: { type: String },
     },
-    comments: { defualt: [], type: [CommentSchema] },
+    comments: { default: [], type: [CommentSchema] },
     likes: {
       default: [],
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Author" }],
@@ -51,10 +51,37 @@ blogsSchema.static("findBlogWithAuthors", async function (query) {
     .limit(query.options.limit)
     .sort(query.options.sort)
     .populate({
-      path: "authors",
+      path: "author",
       select: "name surname avatar",
     })
+    .populate({
+      path: "likes",
+      select: "name",
+    })
+
   return { total, blogs }
 })
 
-export default model("Blog", blogsSchema)
+blogsSchema.static("findBlogWithAuthor", async function (query, id) {
+  const total = await this.countDocuments(query.creteria)
+
+  const blog = await this.find({ _id: id }, query.criteria, query.options.fields)
+    .skip(query.options.skip)
+    .limit(query.options.limit)
+    .sort(query.options.sort)
+
+    .populate({
+      path: "author",
+      select: "name surname avatar",
+    })
+    .populate({
+      path: "likes",
+      select: "name",
+    })
+  return blog
+})
+
+let BlogsModel = model("Blog", blogsSchema)
+let CommentsModel = model("Comment", CommentSchema)
+
+export { BlogsModel, CommentsModel }

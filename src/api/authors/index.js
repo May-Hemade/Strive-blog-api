@@ -168,14 +168,14 @@ import authorsRouter from "./indexMongo"
 //     }
 //   }
 // )
-// const cloudinaryUploader = multer({
-//   storage: new CloudinaryStorage({
-//     cloudinary, // cloudinary is going to search in .env vars for smt called process.env.CLOUDINARY_URL
-//     params: {
-//       folder: "strive-blog-api/authors",
-//     },
-//   }),
-// }).single("avatar")
+const cloudinaryUploader = multer({
+  storage: new CloudinaryStorage({
+    cloudinary, // cloudinary is going to search in .env vars for smt called process.env.CLOUDINARY_URL
+    params: {
+      folder: "strive-blog-api/authors",
+    },
+  }),
+}).single("avatar")
 
 // authorsRouter.post(
 //   "/:id/avatarCloudinary",
