@@ -11,12 +11,13 @@ import csvWriter from "csv-writer"
 import { stringify } from "csv-stringify/sync"
 import { Transform } from "json2csv"
 import { pipeline } from "stream"
+import { basicAuthMiddleware } from "../../lib/auth/basicAuth.js"
 
 const blogsRouter = express.Router()
 
-blogsRouter.post("/", async (req, res, next) => {
+blogsRouter.post("/", basicAuthMiddleware, async (req, res, next) => {
   try {
-    const newBlog = new BlogsModel(req.body)
+    const newBlog = new BlogsModel({ ...req.body, author: req.user._id })
     const newblog = await newBlog.save()
     res.status(201).send(newblog)
   } catch (error) {
@@ -42,12 +43,13 @@ blogsRouter.get("/", async (req, res, next) => {
 
     const total = await BlogsModel.countDocuments(mongoQuery.criteria)
     // no matter the order of usage of these methods, Mongo will ALWAYS apply SORT then SKIP then LIMIT
-    res.send({
-      links: mongoQuery.links("http://localhost:3001/blogs", total),
-      total,
-      numberOfPages: Math.ceil(total / mongoQuery.options.limit),
-      blogs,
-    })
+    res.send(
+      blogs
+      // links: mongoQuery.links("http://localhost:3001/blogs", total),
+      // total,
+      // numberOfPages: Math.ceil(total / mongoQuery.options.limit),
+      // blogs,
+    )
     // res.send(blogs)
   } catch (error) {
     next(error)

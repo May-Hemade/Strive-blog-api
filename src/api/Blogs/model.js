@@ -52,7 +52,7 @@ blogsSchema.static("findBlogWithAuthors", async function (query) {
     .sort(query.options.sort)
     .populate({
       path: "author",
-      select: "name surname avatar",
+      select: "name surname avatar email",
     })
     .populate({
       path: "likes",
