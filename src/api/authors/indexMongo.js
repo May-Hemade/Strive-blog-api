@@ -8,6 +8,7 @@ import { basicAuthMiddleware } from "../../lib/auth/basicAuth.js"
 import { adminOnlyMiddleware } from "../../lib/auth/admin.js"
 import { BlogsModel } from "../Blogs/model.js"
 import { createAccessToken } from "../../lib/auth/tools.js"
+import passport from "passport"
 const authorsRouter = express.Router()
 
 authorsRouter.post("/register", async (req, res, next) => {
@@ -26,6 +27,15 @@ authorsRouter.post("/register", async (req, res, next) => {
     res.status(500).send({ message: error.message })
   }
 })
+authorsRouter.get("/me/stories", basicAuthMiddleware, async (req, res, next) => {
+  try {
+    const posts = await BlogsModel.find({ author: req.user._id.toString() })
+
+    res.status(200).send(posts)
+  } catch (error) {
+    next(error)
+  }
+})
 
 authorsRouter.get("/", async (req, res, next) => {
   try {
@@ -34,6 +44,14 @@ authorsRouter.get("/", async (req, res, next) => {
   } catch (error) {
     next(error)
   }
+})
+
+authorsRouter.get("/googleLogin", passport.authenticate("google", { scope: ["profile", "email"] }))
+// The purpose of this endpoint is to redirect users to Google Consent Screen
+
+authorsRouter.get("/googleRedirect", passport.authenticate("google", { session: false }), async (req, res, next) => {
+  console.log(req.user)
+  res.redirect(`${process.env.FE_URL}?accessToken=${req.user.accessToken}`)
 })
 
 authorsRouter.get("/me", basicAuthMiddleware, async (req, res, next) => {

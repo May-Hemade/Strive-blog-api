@@ -12,6 +12,7 @@ const authorsSchema = new Schema(
     avatar: { type: String, required: true },
     password: { type: String, required: true },
     role: { type: String, enum: ["Author", "Admin"], default: "Author" },
+    googleId: { type: String, required: false },
     friends: {
       default: [],
       type: [{ type: Schema.Types.ObjectId, ref: "Author" }],

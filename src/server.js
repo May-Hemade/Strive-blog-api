@@ -14,10 +14,14 @@ import mongoose from "mongoose"
 import blogsRouter from "./api/Blogs/indexMongo.js"
 import authorsRouter from "./api/authors/indexMongo.js"
 import createHttpError from "http-errors"
+import passport from "passport"
+import googleStrategy from "./lib/auth/google.js"
 
 const server = express() // helps me to create endpoints and api
 
 const port = process.env.PORT || 3001
+
+passport.use("google", googleStrategy)
 const loggerMiddleWare = (req, res, next) => {
   console.log(`Request method ${req.method}--url ${req.url}---${new Date()}`)
   req.author = "May"
@@ -57,6 +61,7 @@ const corsOpts = {
 server.use(express.static(publicFolderPath))
 server.use("/pdf", express.static(publicFolderPath))
 server.use(cors(corsOpts))
+server.use(passport.initialize())
 
 // ****************** ENDPOINTS *********************
 // server.use(express.static(publicDirectory))
