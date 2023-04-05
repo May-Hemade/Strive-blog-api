@@ -34,8 +34,12 @@ const blogsSchema = new Schema(
       default: [],
       type: [{ type: mongoose.Schema.Types.ObjectId, ref: "Author" }],
     },
+    // author: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Author" },
 
-    author: { type: mongoose.Types.ObjectId, required: true, ref: "Author" },
+    author: {
+      default: [],
+      type: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: "Author" }],
+    },
     content: { type: String },
   },
   {

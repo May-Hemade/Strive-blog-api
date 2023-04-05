@@ -37,6 +37,16 @@ authorsRouter.get("/me/stories", basicAuthMiddleware, async (req, res, next) => 
   }
 })
 
+authorsRouter.get("/me/stories2", basicAuthMiddleware, async (req, res, next) => {
+  try {
+    const posts = await BlogsModel.find({ author: { $in: [req.user._id.toString()] } })
+
+    res.status(200).send(posts)
+  } catch (error) {
+    next(error)
+  }
+})
+
 authorsRouter.get("/", async (req, res, next) => {
   try {
     const authors = await AuthorModel.find()
@@ -141,7 +151,7 @@ authorsRouter.get("/:id", async (req, res, next) => {
   }
 }) /// because of uuid not same number so it will give an error
 
-authorsRouter.put("/:id", async (req, res, next) => {
+authorsRouter.put("/:id", basicAuthMiddleware, adminOnlyMiddleware, async (req, res, next) => {
   try {
     const updatedAuthor = await AuthorModel.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true })
     if (updatedAuthor) {

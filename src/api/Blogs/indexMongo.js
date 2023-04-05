@@ -17,7 +17,7 @@ const blogsRouter = express.Router()
 
 blogsRouter.post("/", basicAuthMiddleware, async (req, res, next) => {
   try {
-    const newBlog = new BlogsModel({ ...req.body, author: req.user._id })
+    const newBlog = new BlogsModel({ ...req.body })
     const newblog = await newBlog.save()
     res.status(201).send(newblog)
   } catch (error) {
